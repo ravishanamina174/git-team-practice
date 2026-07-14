@@ -12,7 +12,8 @@ function sub(a,b) {
 let answer = sub(6,5)
 console.log(answer)
 
-// Dev B added this:
+
+// Dev-B added this:
 function multiply(a, b) {
     return a * b;
 }
