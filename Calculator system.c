@@ -146,3 +146,103 @@ void updateRecord(CalculationDatabase *db, int id, double newNum1, double newNum
     rec->result = performOperation(rec->operation, newNum1, newNum2);
     printf("Record with ID %d updated.\n", id);
 }
+
+
+/* ---------------------------------------------------------
+ * Analysis, Utilities, and UI Presentation Layers
+ * --------------------------------------------------------- */
+
+double calculateAverage(CalculationDatabase *db) {
+    if (!db || db->count == 0) return 0;
+    double sum = 0;
+    for (int i = 0; i < db->count; i++) {
+        sum += db->records[i].result;
+    }
+    return sum / db->count;
+}
+
+double findMaxResult(CalculationDatabase *db) {
+    if (!db || db->count == 0) return 0;
+    double max = db->records[0].result;
+    for (int i = 1; i < db->count; i++) {
+        if (db->records[i].result > max) max = db->records[i].result;
+    }
+    return max;
+}
+
+double findMinResult(CalculationDatabase *db) {
+    if (!db || db->count == 0) return 0;
+    double min = db->records[0].result;
+    for (int i = 1; i < db->count; i++) {
+        if (db->records[i].result < min) min = db->records[i].result;
+    }
+    return min;
+}
+
+int compareRecords(const void *a, const void *b) {
+    double resA = ((CalculationRecord *)a)->result;
+    double resB = ((CalculationRecord *)b)->result;
+    return (resA > resB) - (resA < resB);
+}
+
+void sortRecordsByResult(CalculationDatabase *db) {
+    if (db && db->count > 1) {
+        qsort(db->records, db->count, sizeof(CalculationRecord), compareRecords);
+    }
+    printf("Records sorted by result (ascending).\n");
+}
+
+int validateOperation(const char *operation) {
+    for (int i = 0; i < num_ops; i++) {
+        if (strcmp(operation, operation_map[i].op_name) == 0) return 1;
+    }
+    return 0;
+}
+
+void printSeparator(void) {
+    printf("--------------------------------------------------------\n");
+}
+
+void printHeader(const char *title) {
+    printSeparator();
+    printf("           %s\n", title);
+    printSeparator();
+}
+
+void printRecord(CalculationRecord *record) {
+    if (record) {
+        printf("ID: %-4d Name: %-15s Operation: %-6s %.2f, %.2f => Result: %.2f\n",
+               record->id, record->name, record->operation,
+               record->num1, record->num2, record->result);
+    }
+}
+
+void printAllRecords(CalculationDatabase *db) {
+    if (!db) return;
+    printHeader("All Calculation Records");
+    CalculationRecord *curr = db->records;
+    for (int i = 0; i < db->count; i++, curr++) {
+        printRecord(curr);
+    }
+    printSeparator();
+}
+
+void exportToCSVFormat(CalculationDatabase *db) {
+    if (!db) return;
+    printHeader("CSV Export Preview");
+    printf("id,name,operation,num1,num2,result\n");
+    for (int i = 0; i < db->count; i++) {
+        CalculationRecord *r = db->records + i;
+        printf("%d,%s,%s,%.2f,%.2f,%.2f\n", r->id, r->name, r->operation, r->num1, r->num2, r->result);
+    }
+    printSeparator();
+}
+
+void printMenu(void) {
+    printSeparator();
+    printf("           CALCULATOR MANAGEMENT SYSTEM MENU\n");
+    printSeparator();
+    printf("1. Add Record\n2. View All Records\n3. Update Record\n4. Delete Record\n"
+           "5. Sort Records\n6. View Statistics\n7. Export to CSV Format\n8. Exit\n");
+    printSeparator();
+}
